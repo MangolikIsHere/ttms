@@ -3,6 +3,7 @@ import { CategoryNav } from "@/components/category-nav"
 import { HeroCarousel } from "@/components/hero-carousel"
 import { ProductCard } from "@/components/product-card"
 import { Footer } from "@/components/footer"
+import { FlashSale } from "@/components/flash-sale"
 
 // Mock data for featured products
 const featuredProducts = [
@@ -112,6 +113,62 @@ const featuredProducts = [
   },
 ]
 
+// Mock data for flash sale products
+const flashSaleProducts = [
+  {
+    id: "flash-1",
+    title: "iPhone 15 Pro Max 256GB",
+    price: 134900,
+    mrp: 159900,
+    image: "/iphone-15-pro.jpg",
+    rating: 4.8,
+    ratingCount: 1234,
+    merchants: [
+      { name: "amazon", badge: "Amazon" },
+      { name: "flipkart", badge: "Flipkart" },
+    ],
+  },
+  {
+    id: "flash-2",
+    title: "Sony PlayStation 5 Console",
+    price: 49990,
+    mrp: 54990,
+    image: "/ps5-console.jpg",
+    rating: 4.7,
+    ratingCount: 892,
+    merchants: [
+      { name: "amazon", badge: "Amazon" },
+      { name: "flipkart", badge: "Flipkart" },
+    ],
+  },
+  {
+    id: "flash-3",
+    title: "Dell XPS 13 Laptop",
+    price: 89999,
+    mrp: 109999,
+    image: "/dell-xps.jpg",
+    rating: 4.6,
+    ratingCount: 567,
+    merchants: [
+      { name: "amazon", badge: "Amazon" },
+      { name: "flipkart", badge: "Flipkart" },
+    ],
+  },
+  {
+    id: "flash-4",
+    title: "Apple Watch Series 9",
+    price: 41900,
+    mrp: 45900,
+    image: "/apple-watch.jpg",
+    rating: 4.5,
+    ratingCount: 2341,
+    merchants: [
+      { name: "amazon", badge: "Amazon" },
+      { name: "flipkart", badge: "Flipkart" },
+    ],
+  },
+]
+
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
@@ -122,6 +179,11 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Hero Carousel */}
           <HeroCarousel />
+
+          {/* Flash Sale Section */}
+          <section className="mt-12">
+            <FlashSale products={flashSaleProducts} />
+          </section>
 
           {/* Featured Products Section */}
           <section className="mt-12">

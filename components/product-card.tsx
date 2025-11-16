@@ -21,9 +21,9 @@ export function ProductCard({ id, title, price, mrp, image, rating, ratingCount,
   const discount = Math.round(((mrp - price) / mrp) * 100)
 
   return (
-    <div className="group bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-border">
+    <div className="group bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-border h-full flex flex-col">
       {/* Image container */}
-      <div className="relative w-full aspect-square bg-secondary overflow-hidden">
+      <div className="relative w-full aspect-square bg-secondary overflow-hidden flex-shrink-0">
         <Image
           src={image || "/placeholder.svg"}
           alt={title}
@@ -45,10 +45,10 @@ export function ProductCard({ id, title, price, mrp, image, rating, ratingCount,
       </div>
 
       {/* Content */}
-      <div className="p-3 flex flex-col gap-2">
+      <div className="p-3 flex flex-col gap-2 flex-grow">
         {/* Title */}
         <Link href={`/product/${id}`}>
-          <h3 className="text-sm font-semibold text-foreground line-clamp-2 hover:text-primary transition-colors">
+          <h3 className="text-sm font-semibold text-foreground line-clamp-2 hover:text-primary transition-colors min-h-[2.5rem]">
             {title}
           </h3>
         </Link>
@@ -59,17 +59,25 @@ export function ProductCard({ id, title, price, mrp, image, rating, ratingCount,
             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
             <span className="text-sm font-semibold">{rating}</span>
           </div>
-          <span className="text-xs text-muted-foreground">({ratingCount.toLocaleString()})</span>
+          <span className="text-xs text-muted-foreground" suppressHydrationWarning={true}>
+            ({ratingCount.toLocaleString()})
+          </span>
         </div>
 
         {/* Pricing */}
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-foreground">₹{price.toLocaleString()}</span>
-          {mrp > price && <span className="text-sm text-muted-foreground line-through">₹{mrp.toLocaleString()}</span>}
+          <span className="text-lg font-bold text-foreground" suppressHydrationWarning={true}>
+            ₹{price.toLocaleString()}
+          </span>
+          {mrp > price && (
+            <span className="text-sm text-muted-foreground line-through" suppressHydrationWarning={true}>
+              ₹{mrp.toLocaleString()}
+            </span>
+          )}
         </div>
 
         {/* Merchant badges */}
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap flex-grow">
           {merchants.map((merchant) => (
             <span key={merchant.name} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded font-medium">
               {merchant.badge}
@@ -78,7 +86,7 @@ export function ProductCard({ id, title, price, mrp, image, rating, ratingCount,
         </div>
 
         {/* CTA buttons */}
-        <div className="flex gap-2 pt-2">
+        <div className="flex gap-2 pt-2 mt-auto">
           <Link
             href={`/product/${id}`}
             className="flex-1 bg-primary text-primary-foreground py-2 rounded font-medium text-sm hover:opacity-90 transition-opacity text-center"
