@@ -2,18 +2,27 @@
 
 import type React from "react"
 
-import { ShoppingCart, Heart, User, Search } from "lucide-react"
+import { ShoppingCart, Heart, User, Search, ChevronDown } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
+import { useAuth } from "@/contexts/AuthContext"
+import Image from "next/image"
 
 export function Header() {
   const [searchQuery, setSearchQuery] = useState("")
+  const [showUserMenu, setShowUserMenu] = useState(false)
+  const { user, logout } = useAuth()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
       window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`
     }
+  }
+
+  const handleLogout = async () => {
+    await logout()
+    setShowUserMenu(false)
   }
 
   return (
@@ -59,9 +68,68 @@ export function Header() {
                 0
               </span>
             </Link>
-            <Link href="/account" className="p-2 hover:bg-secondary rounded-lg transition-colors" title="Account">
-              <User className="w-5 h-5" />
-            </Link>
+
+            {/* User Profile / Login */}
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-2 p-1 hover:bg-secondary rounded-lg transition-colors"
+                  title="Account"
+                >
+                  {user.photoURL ? (
+                    <Image
+                      src={user.photoURL}
+                      alt={user.displayName || "User"}
+                      width={32}
+                      height={32}
+                      className="rounded-full"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                      <span className="text-primary-foreground text-sm font-bold">
+                        {user.displayName?.[0] || user.email?.[0]?.toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                </button>
+
+                {/* User Menu Dropdown */}
+                {showUserMenu && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-lg shadow-lg py-2 z-50">
+                    <div className="px-4 py-2 border-b border-border">
+                      <p className="text-sm font-medium text-foreground">{user.displayName || "User"}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                    </div>
+                    <Link
+                      href="/account"
+                      className="block px-4 py-2 text-sm text-foreground hover:bg-secondary"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      My Account
+                    </Link>
+                    <Link
+                      href="/wishlist"
+                      className="block px-4 py-2 text-sm text-foreground hover:bg-secondary"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      Wishlist
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-secondary"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link href="/auth/login" className="p-2 hover:bg-secondary rounded-lg transition-colors" title="Login">
+                <User className="w-5 h-5" />
+              </Link>
+            )}
           </div>
         </div>
 
@@ -81,6 +149,14 @@ export function Header() {
           </div>
         </form>
       </div>
+
+      {/* Click outside to close menu */}
+      {showUserMenu && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setShowUserMenu(false)}
+        />
+      )}
     </header>
   )
 }
