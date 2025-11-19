@@ -1,13 +1,2 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  output: 'standalone',
-  images: {
-    domains: ['localhost'],
-    unoptimized: true
-  },
-  experimental: {
-    outputFileTracingRoot: undefined,
-  }
-}
-
-module.exports = nextConfig
+// This file should be deleted - use next.config.mjs instead
+// Delete this entire file
