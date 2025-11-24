@@ -7,7 +7,7 @@ import { signOut } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 import { ShoppingCart, LogOut, LogIn, User, Menu, X } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { SearchBar } from "@/components/search-bar"
 import { ThemeToggle } from "@/components/theme-toggle"
 
@@ -16,10 +16,23 @@ export function Navbar() {
   const { user } = useAuth()
   const { items } = useCart()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [accountOpen, setAccountOpen] = useState(false)
+  const accountRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
+        setAccountOpen(false)
+      }
+    }
+    window.addEventListener("click", handleClick)
+    return () => window.removeEventListener("click", handleClick)
+  }, [])
 
   const handleLogout = async () => {
     await signOut(auth)
     setMenuOpen(false)
+    setAccountOpen(false)
     router.push("/")
   }
 
@@ -68,32 +81,94 @@ export function Navbar() {
               )}
             </Link>
 
-            {/* Auth */}
+            {/* Auth / Avatar */}
             {user ? (
-              <div className="hidden sm:flex items-center gap-2">
+              // Avatar + dropdown menu (replaces explicit Sign In / Logout UI)
+              <div ref={accountRef} className="relative">
                 <button
-                  onClick={() => router.push("/dashboard")}
-                  className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted transition-smooth"
-                  title={user.email || ""}
+                  onClick={() => setAccountOpen((s) => !s)}
+                  className="flex items-center gap-2 p-2 rounded-full hover:bg-muted/50 transition-all border border-transparent hover:border-primary/20"
+                  title={user.displayName || user.email || "Account"}
                 >
-                  <User size={20} />
-                  <span className="hidden lg:inline text-sm truncate">{user.email?.split("@")[0]}</span>
+                  {user.photoURL ? (
+                    <img
+                      src={user.photoURL}
+                      alt={user.displayName || "avatar"}
+                      className="w-8 h-8 rounded-full object-cover border-2 border-primary/30 shadow-sm"
+                      onError={(e) => {
+                        // Hide broken image and show fallback
+                        const target = e.currentTarget
+                        target.style.display = 'none'
+                        const fallback = target.nextElementSibling as HTMLElement
+                        if (fallback) {
+                          fallback.style.display = 'flex'
+                        }
+                      }}
+                    />
+                  ) : null}
+                  
+                  {/* Show initials as fallback - always rendered but conditionally shown */}
+                  <div 
+                    className="w-8 h-8 rounded-full bg-gradient-to-br from-primary via-primary to-accent text-white flex items-center justify-center font-bold text-sm shadow-md border-2 border-white/20"
+                    style={{ display: user.photoURL ? 'none' : 'flex' }}
+                  >
+                    {(user.displayName?.charAt(0) || user.email?.charAt(0) || "U").toUpperCase()}
+                  </div>
                 </button>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-destructive/10 hover:text-destructive transition-smooth"
-                  title="Logout"
-                >
-                  <LogOut size={20} />
-                </button>
+
+                {accountOpen && (
+                  <div className="absolute right-0 mt-2 w-52 bg-card border border-border rounded-xl shadow-xl z-50 py-2 animate-scaleIn backdrop-blur-sm">
+                    <div className="px-4 py-3 border-b border-border/50">
+                      <div className="flex items-center gap-3 mb-2">
+                        {user.photoURL ? (
+                          <img
+                            src={user.photoURL}
+                            alt="Profile"
+                            className="w-10 h-10 rounded-full object-cover border-2 border-primary/20"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent text-white flex items-center justify-center font-bold text-sm">
+                            {(user.displayName?.charAt(0) || user.email?.charAt(0) || "U").toUpperCase()
+                            }
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground truncate">
+                            {user.displayName || user.email?.split("@")[0] || "User"}
+                          </p>
+                          <p className="text-xs text-foreground/60 truncate">{user.email}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="py-1">
+                      <button
+                        onClick={() => {
+                          setAccountOpen(false)
+                          router.push("/dashboard")
+                        }}
+                        className="w-full text-left px-4 py-3 hover:bg-muted/80 transition-colors flex items-center gap-3 text-sm"
+                      >
+                        <User size={16} className="text-primary" />
+                        <span>Dashboard</span>
+                      </button>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-3 hover:bg-destructive/10 hover:text-destructive transition-colors flex items-center gap-3 text-sm"
+                      >
+                        <LogOut size={16} />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <Link
                 href="/auth"
-                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-smooth btn-hover-glow"
+                className="flex items-center gap-2 px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-smooth btn-hover-glow text-sm"
               >
-                <LogIn size={20} />
-                <span className="hidden md:inline">Sign In</span>
+                <LogIn size={18} />
+                <span className="hidden sm:inline">Sign In</span>
               </Link>
             )}
 
