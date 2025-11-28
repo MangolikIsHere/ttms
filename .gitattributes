@@ -1,9 +1,7 @@
-@'
-* text=auto
+﻿* text=auto
 *.png binary
 *.jpg binary
 *.jpeg binary
 *.gif binary
 *.ico binary
 *.zip binary
-'@ | Set-Content -Encoding UTF8 .gitattributes
